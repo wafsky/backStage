@@ -2,10 +2,18 @@
   <div class="app-container">
     <el-button type="primary" @click="create">添加</el-button>
     <el-table :data="tableData" style="width: 100%">
-      <el-table-column type="index" width="100" />
-      <el-table-column property="name" label="姓名" width="200" />
-      <el-table-column property="index" label="索引" width="200" />
-      <el-table-column label="操作">
+      <el-table-column property="title" label="电影名称" />
+      <el-table-column property="stars" label="演员" />
+      <el-table-column property="score" label="评分" />
+      <el-table-column property="desc" label="描述" />
+      <el-table-column property="p.name" label="城市" />
+
+      <el-table-column label="图片">
+        <template slot-scope="scope">
+          <img :src="scope.row.imgUrl" alt="" style="height: 80px">
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="200">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -40,7 +48,7 @@ export default {
 
   data() {
     return {
-      pageSize: 3,
+      pageSize: 4,
       currentPage: 1,
       total: 0,
       tableData: [],
@@ -48,12 +56,12 @@ export default {
     }
   },
   created() {
-    this.getCityList()
+    this.getMovieList()
   },
   methods: {
-    getCityList() {
+    getMovieList() {
       axios
-        .get(`/citys?page=${this.currentPage}&pageSize=${this.pageSize}`)
+        .get(`/movies?page=${this.currentPage}&pageSize=${this.pageSize}`)
         .then((res) => {
           this.tableData = res.data.list
           this.total = res.data.total
@@ -62,24 +70,27 @@ export default {
 
     create() {
       this.$router.push({
-        path: '/city/create'
+        path: '/movie/create'
       })
     },
 
     handleEdit(id) {
+      // console.log(id);
       this.$router.push({
-        path: '/city/edit/' + id
+        path: '/movie/edit/' + id
       })
     },
 
     handleDelete(id) {
+      // console.log(id);
       this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       })
         .then(() => {
-          axios.delete('/delcity/' + id).then((res) => {
+          axios.delete('/delmovie/' + id).then((res) => {
+            // console.log(res);
             this.$message({
               message: res.data.msg,
               type: 'success'
@@ -89,7 +100,7 @@ export default {
               message: '删除成功!'
             })
             this.currentPage = 1
-            this.getCityList()
+            this.getMovieList()
           })
         })
         .catch(() => {
@@ -102,7 +113,7 @@ export default {
 
     changePage(page) {
       this.currentPage = page
-      this.getCityList()
+      this.getMovieList()
     }
   }
 }

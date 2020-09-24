@@ -7,10 +7,10 @@ Vue.use(Router)
 import Layout from '@/layout'
 
 /* Router Modules */
-import componentsRouter from './modules/components'
-import chartsRouter from './modules/charts'
-import tableRouter from './modules/table'
-import nestedRouter from './modules/nested'
+// import componentsRouter from './modules/components'
+// import chartsRouter from './modules/charts'
+// import tableRouter from './modules/table'
+// import nestedRouter from './modules/nested'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -251,6 +251,38 @@ export const asyncRoutes = [
         component: () => import('@/views/city/list'),
         name: 'CityList',
         meta: { title: '城市列表', noCache: true, icon: 'list' }
+      }
+    ]
+  },
+
+  {
+    path: '/movie',
+    component: Layout,
+    redirect: '/movie/list',
+    name: 'Movie',
+    meta: {
+      title: '电影模块',
+      icon: 'el-icon-s-help'
+    },
+    children: [
+      {
+        path: 'create',
+        component: () => import('@/views/movie/create'),
+        name: 'CreateMovie',
+        meta: { title: '添加电影', icon: 'edit' }
+      },
+      {
+        path: 'edit/:id',
+        component: () => import('@/views/movie/edit'),
+        name: 'Editmovie',
+        meta: { title: '修改电影', noCache: true, activeMenu: '/movie/list' },
+        hidden: true
+      },
+      {
+        path: 'list',
+        component: () => import('@/views/movie/list'),
+        name: 'MovieList',
+        meta: { title: '电影列表', noCache: true, icon: 'list' }
       }
     ]
   },

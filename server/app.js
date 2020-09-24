@@ -1,11 +1,24 @@
 const express = require('express')
 const City = require("./model/city")
-
+const Movie = require("./model/movie")
 const app = new express()
 const bodyParser = require('body-parser')
+const multer = require('multer')
 
 
+var storage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		cb(null, 'uploads')
+	},
+	filename: function (req, file, cb) {
+		cb(null, file.fieldname + '-' + Date.now() + file.originalname)
+	}
+})
 
+var upload = multer({ storage: storage })
+
+
+app.use("/uploads", express.static("uploads"))
 
 app.use(bodyParser.urlencoded({ extended: false }))
 
@@ -51,17 +64,29 @@ app.post("/city/create", (req, res) => {
 	})
 })
 
+
 //城市列表
+app.get("/cityss", (req, res) => {
+
+	City.find().then(mon => {
+		if (mon) {
+			res.json({
+				code: 20000,
+				list: mon
+			})
+		}
+	})
+})
+
+
+//城市列表分页
 app.get("/citys", async (req, res) => {
-	console.log(req.query)
 	const page = Number(req.query.page) || 1
 	const pageSize = Number(req.query.pageSize) || 3
 	var start = (page - 1) * pageSize
 
 	const total = await City.find()
 	const result = await City.find().skip(start).limit(pageSize)
-	console.log(total, result)
-
 	res.json({
 		code: 20000,
 		list: result,
@@ -83,7 +108,6 @@ app.delete("/delcity/:id", (req, res) => {
 
 //单个城市
 app.get("/city/:id", (req, res) => {
-	console.log(req.params)
 	City.findById(req.params.id).then(mon => {
 		res.json({
 			code: 20000,
@@ -93,11 +117,10 @@ app.get("/city/:id", (req, res) => {
 })
 
 //修改
-app.put("/edit", (req, res) => {
-	console.log(req.body)
+app.put("/cityEdit", (req, res) => {
 	City.findByIdAndUpdate(req.body._id, req.body).then(mon => {
 		if (mon) {
-			console.log(mon)
+			// console.log(mon)
 			res.json({
 				code: 20000,
 				msg: "数据修改成功"
@@ -106,9 +129,81 @@ app.put("/edit", (req, res) => {
 	})
 })
 
+//图片上传
+app.post("/upload", upload.single("avatar"), (req, res, next) => {
+	res.json({
+		code: 20000,
+		msg: "图片上传成功",
+		path: req.file.path
+	})
+})
+
+
+//添加电影
+
+app.post("/movie/create", (req, res) => {
+	const movie = new Movie(req.body)
+	movie.save().then(mon => {
+		if (mon) {
+			res.json({
+				code: 20000,
+				msg: "数据添加成功"
+			})
+		}
+	})
+})
 
 
 
+//电影列表
+app.get("/movies", async (req, res) => {
+	const page = Number(req.query.page) || 1
+	const pageSize = Number(req.query.pageSize) || 3
+	var start = (page - 1) * pageSize
+	const total = await Movie.find()
+	const result = await Movie.find().skip(start).limit(pageSize).populate("p")
+	res.json({
+		code: 20000,
+		list: result,
+		total: total.length
+	})
+
+})
+
+
+//删除电影
+
+app.delete("/delmovie/:id", (req, res) => {
+	// console.log(req.params.id);
+	Movie.findByIdAndDelete(req.params.id).then(mon => {
+		res.json({
+			code: 20000,
+			msg: "删除成功"
+		})
+	})
+})
+
+
+app.get("/movie/:id", (req, res) => {
+	Movie.findById(req.params.id).then(mon => {
+		res.json({
+			code: 20000,
+			data: mon
+		})
+	})
+})
+
+app.put("/movieEdit", (req, res) => {
+	Movie.findByIdAndUpdate(req.body._id, req.body).then(mon => {
+		if (mon) {
+			// console.log(mon)
+			res.json({
+				code: 20000,
+				msg: "数据修改成功"
+			})
+		}
+	})
+})
 
 
 

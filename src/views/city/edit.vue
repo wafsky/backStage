@@ -35,16 +35,12 @@ export default {
     }
   },
   created() {
-    this.getId()
+    var id = this.$route.params.id
+    this.city._id = this.$route.params.id
+
+    this.getCity(id)
   },
   methods: {
-    getId() {
-      var url = window.location.hash
-      var a = url.split('/')
-      var id = a[a.length - 1]
-      this.getCity(id)
-    },
-
     getCity(id) {
       axios.get('/city/' + id).then((res) => {
         this.city = res.data.data
@@ -53,8 +49,8 @@ export default {
 
     onSubmit() {
       if (this.city.name) {
-        console.log(this.city)
-        axios.put('/edit', this.city).then((res) => {
+        // console.log(this.city);
+        axios.put('/cityEdit', this.city).then((res) => {
           this.$message({
             message: res.data.msg,
             type: 'success'
@@ -67,8 +63,7 @@ export default {
       }
     },
     cancal() {
-      this.city.name = ''
-      this.city.index = ''
+      this.getCity(this.city._id)
     },
 
     getFirstLetter() {
